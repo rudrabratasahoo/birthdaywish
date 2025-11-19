@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Happy Birthday, Gelhi 🫶🎈</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet" />
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Your custom styles -->
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body class="font-poppins text-pink-900">
+
+    <!-- Floating background FX -->
+    <div id="floating-elements"></div>
+    <div id="parallax-hearts"></div>
+    <div id="floating-stickers"></div>
+
+    <!-- Confetti canvas -->
+    <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none hidden"></canvas>
+
+    <!-- Sweet floating bubbles (compliments + whispers) -->
+    <div id="sweet-bubble-layer" class="fixed inset-0 z-30 pointer-events-none"></div>
+
+    <!-- INTRO OVERLAY -->
+    <div id="intro-overlay"
+        class="fixed inset-0 bg-pink-100/90 backdrop-blur flex flex-col items-center justify-center z-40">
+        <div class="romantic-panel max-w-md w-[90%] p-8 text-center">
+            <p class="text-xs uppercase tracking-[0.2em] text-pink-400 mb-2">for my baby</p>
+            <h1 class="font-dancing text-4xl md:text-5xl romantic-heading mb-4">
+                Happy Birthday, Gelhi 🫶
+            </h1>
+            <p class="text-sm text-pink-700 mb-4">
+                I made this small chaotic soft thing for you.<br />
+                Let it load, breathe, and then tap when your heart is ready.
+            </p>
+
+            <div class="flex flex-col items-center gap-2 mb-5">
+                <span class="text-xs uppercase tracking-[0.2em] text-pink-400">starting in</span>
+                <div id="countdown" class="text-3xl font-semibold text-pink-600">5</div>
+            </div>
+
+            <button id="start-btn"
+                class="px-5 py-2 bg-pink-500 text-white rounded-full text-sm shadow opacity-60 cursor-not-allowed"
+                disabled>
+                Wait a sec baby… ⏳
+            </button>
+        </div>
+    </div>
+
+    <!-- PAGE WRAPPER -->
+    <div class="min-h-screen relative">
+
+        <!-- TOP HERO -->
+                <!-- TOP HERO -->
+        <header class="pt-6 pb-2 px-4 md:px-8">
+            <div class="max-w-4xl mx-auto flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div>
+                    <p class="text-[11px] uppercase tracking-[0.2em] text-pink-400 mb-2">
+                        for my favourite human
+                    </p>
+                    <h1 class="font-dancing text-4xl md:text-5xl romantic-heading heading-breath">
+                        Happy Birthday, <span class="crown-wrapper"><span class="crown-target">Gelhi</span></span> 🫶
+                    </h1>
+                    <p class="text-xs md:text-sm text-pink-700 mt-2 max-w-md">
+                        Soft website, dramatic feelings, mild chaos. Built only for you.
+                    </p>
+
+                    <!-- Relationship day counter chip -->
+                    <p id="relationship-counter-hero"
+                       class="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/70 border border-pink-200 text-[11px] text-pink-700 shadow-sm">
+                        <!-- filled by JS -->
+                    </p>
+                </div>
+
+                <!-- Mood ring -->
+                <div class="flex flex-col items-end gap-2">
+                    <div id="mood-ring" class="mood-ring">
+                        <div class="mood-ring-inner"></div>
+                        <p id="mood-ring-label" class="mood-ring-label">Mood: game</p>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+
+        <!-- NAVIGATION PILLS (unlock AFTER final only) -->
+        <nav id="section-nav" class="max-w-3xl mx-auto mt-3 px-4 md:px-0 hidden">
+            <div
+                class="flex flex-wrap gap-2 bg-white/70 border border-pink-100 rounded-full px-3 py-2 shadow-sm text-[11px]">
+                <button class="nav-pill nav-active" data-section="game">Game</button>
+                <button class="nav-pill" data-section="letter">Letter</button>
+                <button class="nav-pill" data-section="photos">Memories</button>
+                <button class="nav-pill" data-section="playlist">Playlist</button>
+                <button class="nav-pill" data-section="final">Final page</button>
+            </div>
+        </nav>
+
+        <!-- MAIN CONTENT -->
+        <main class="mt-4 mb-20 px-3 md:px-6 lg:px-0">
+
+            <!-- SECTION: GAME (Find My Heart + Drag) -->
+            <section id="game-section"
+                class="min-h-[70vh] flex flex-col items-center justify-center section-transition">
+                <div class="max-w-3xl w-full mx-auto p-4">
+                    <div class="romantic-panel p-6 md:p-8 beat-glow-target">
+                        <h2 class="font-dancing text-3xl md:text-4xl romantic-heading mb-3">
+                            Find my heart first 💘
+                        </h2>
+                        <p class="text-sm md:text-base text-pink-700 mb-4">
+                            Somewhere in here, my real heart is hiding. The wrong ones will flutter away.
+                            The right one will stay with you. Find it, then drag it into the circle.
+                        </p>
+
+                        <!-- Progress -->
+                        <div class="flex items-center justify-between mb-3 text-xs md:text-sm text-pink-600">
+                            <div class="flex items-center gap-2">
+                                <span
+                                    class="inline-flex items-center px-2 py-0.5 rounded-full bg-pink-50 border border-pink-200">
+                                    <span class="w-2 h-2 rounded-full bg-pink-500 mr-1"></span>
+                                    <span id="progress">Popped 0 / 11</span>
+                                </span>
+                            </div>
+                            <div class="w-32 md:w-40 h-1.5 bg-pink-100 rounded-full overflow-hidden">
+                                <div id="balloon-progress-bar" class="h-1.5 bg-pink-500 rounded-full"
+                                    style="width: 0%;"></div>
+                            </div>
+                        </div>
+
+                        <!-- Heart grid -->
+                        <div class="mt-3 mb-4">
+                            <div id="balloon-container"></div>
+                        </div>
+
+                        <!-- Game message -->
+                        <p id="game-message"
+                            class="hidden text-xs md:text-sm text-pink-700 mt-2 bg-pink-50/90 border border-pink-200 px-3 py-2 rounded-lg inline-block">
+                        </p>
+
+                        <!-- Drag instructions -->
+                        <div id="drag-instructions" class="hidden mt-6 text-center">
+                            <p class="text-sm md:text-base text-pink-700 mb-2">
+                                You found it. Now drag this heart into the glowing circle, gently. 💝
+                            </p>
+                        </div>
+
+                        <!-- Drag area -->
+                        <div id="drag-area" class="hidden mt-3 flex flex-col items-center justify-center">
+                            <div class="relative flex items-center justify-center gap-6 md:gap-10">
+                                <!-- Draggable heart -->
+                                <div id="heart-draggable"
+                                    class="heart-draggable w-14 h-14 md:w-16 md:h-16 rounded-full bg-pink-500 flex items-center justify-center text-2xl text-white shadow-lg">
+                                    ❤️
+                                </div>
+
+                                <!-- Drop zone -->
+                                <div id="heart-dropzone"
+                                    class="w-24 h-24 md:w-28 md:h-28 rounded-full border-2 border-pink-300 dropzone-glow flex items-center justify-center">
+                                    <div class="w-10 h-10 rounded-full bg-pink-100/80 flex items-center justify-center">
+                                        <div class="heart-pulse"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION: LETTER -->
+            <section id="message-section"
+                class="hidden min-h-[70vh] flex flex-col items-center justify-center section-transition px-1">
+                <div class="max-w-3xl w-full mx-auto p-4">
+                    <div class="romantic-panel p-6 md:p-9">
+                        <h2 class="font-dancing text-3xl md:text-4xl romantic-heading mb-4">
+                            Okay. Now read this slowly. 💌
+                        </h2>
+
+                        <p id="relationship-counter" class="text-xs md:text-sm text-pink-600 mb-3">
+                            <!-- filled by JS -->
+                        </p>
+
+                        <!-- compliment chip -->
+                        <div
+                            class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-pink-50/90 border border-pink-200 mb-4 text-[11px] text-pink-700">
+                            <span class="text-pink-500">★</span>
+                            <span id="compliment-text">You’re my favourite notification. 💗</span>
+                        </div>
+
+                        <!-- typing indicator -->
+                        <div id="typing-indicator" class="mb-3">
+                            <div class="typing-indicator-bubble">
+                                <span class="text-[10px] text-pink-500 mr-1">me</span>
+                                <span class="typing-dots text-pink-600 text-xs">● ● ●</span>
+                            </div>
+                        </div>
+
+                        <!-- letter -->
+                        <div id="typewriter"
+                            class="text-sm md:text-base text-pink-800 leading-relaxed handwritten-letter">
+                            <!-- filled by JS -->
+                        </div>
+
+                        <div class="mt-6 flex justify-center">
+                            <button id="surprise-btn"
+                                class="px-6 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-full text-sm shadow">
+                                Continue the surprise ➜
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION: PHOTOS -->
+            <section id="photo-surprise"
+                class="hidden min-h-[70vh] flex flex-col items-center justify-center section-transition px-1">
+                <div class="max-w-3xl w-full mx-auto p-4">
+                    <div class="romantic-panel p-6 md:p-8">
+                        <h2 class="font-dancing text-3xl md:text-4xl romantic-heading mb-3">
+                            Little pieces of us 📸
+                        </h2>
+                        <p class="text-sm md:text-base text-pink-700 mb-4">
+                            These are some of my favourite snapshots of you / us / my favourite chaos.
+                        </p>
+
+                        <!-- Slider -->
+                        <div id="photo-slider" class="relative overflow-hidden rounded-2xl bg-pink-50/70 p-2">
+                            <!-- Slide 1 -->
+                            <div class="photo-slide active">
+                                <img src="images/photo1.jpg" alt="Photo 1"
+                                    class="w-full h-64 md:h-80 object-cover rounded-2xl" />
+                                <p class="mt-2 text-xs md:text-sm text-pink-700">
+                                    Caption for the first memory – you can change this in HTML.
+                                </p>
+                            </div>
+                            <!-- Slide 2 -->
+                            <div class="photo-slide">
+                                <img src="images/photo2.jpg" alt="Photo 2"
+                                    class="w-full h-64 md:h-80 object-cover rounded-2xl" />
+                                <p class="mt-2 text-xs md:text-sm text-pink-700">
+                                    Another soft moment I like replaying in my head.
+                                </p>
+                            </div>
+                            <!-- Slide 3 -->
+                            <div class="photo-slide">
+                                <img src="images/photo3.jpg" alt="Photo 3"
+                                    class="w-full h-64 md:h-80 object-cover rounded-2xl" />
+                                <p class="mt-2 text-xs md:text-sm text-pink-700">
+                                    One more thing that makes my brain go “yeah, that’s her”.
+                                </p>
+                            </div>
+
+                            <!-- Controls -->
+                            <button id="photo-prev"
+                                class="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 rounded-full w-7 h-7 flex items-center justify-center text-xs shadow">
+                                ‹
+                            </button>
+                            <button id="photo-next"
+                                class="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 rounded-full w-7 h-7 flex items-center justify-center text-xs shadow">
+                                ›
+                            </button>
+
+                            <!-- Dots -->
+                            <div id="photo-dots" class="flex justify-center gap-2 mt-3">
+                                <!-- filled by JS -->
+                            </div>
+                        </div>
+
+                        <!-- Soft hidden-next button -->
+                        <div class="mt-6 flex justify-center">
+                            <button id="photos-next-btn"
+                                class="soft-next-btn px-6 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-full text-sm shadow">
+                                I have one more little thing for you ➜
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION: PLAYLIST -->
+            <section id="playlist-section"
+                class="hidden min-h-[70vh] flex flex-col items-center justify-center section-transition px-1">
+                <div class="max-w-3xl w-full mx-auto p-4">
+                    <div class="romantic-panel p-6 md:p-8">
+                        <h2 class="font-dancing text-3xl md:text-4xl romantic-heading mb-3">
+                            A tiny playlist for you 🎧
+                        </h2>
+                        <p class="text-sm md:text-base text-pink-700 mb-4">
+                            I picked these because they sound like you, like us, or like the things I can’t say properly.
+                        </p>
+
+                        <div id="playlist-container" class="flex flex-col gap-2 mt-2">
+                            <!-- song cards rendered by JS -->
+                        </div>
+
+                        <!-- Now playing bar -->
+                        <div id="now-playing-bar"
+                            class="mt-5 w-full hidden bg-pink-50 border border-pink-200 rounded-full px-4 py-2 text-xs md:text-sm flex items-center justify-between gap-2">
+                            <div class="flex items-center gap-2">
+                                <span class="inline-block w-2 h-2 rounded-full bg-pink-500 animate-ping"></span>
+                                <span id="now-playing-text" class="text-pink-700 truncate">
+                                    Now playing: —
+                                </span>
+                            </div>
+                            <div class="flex items-center gap-3">
+                                <div id="soundwave" class="soundwave hidden">
+                                    <span></span><span></span><span></span><span></span>
+                                </div>
+                                <span class="text-[10px] uppercase tracking-wide text-pink-400">
+                                    tap pause to hear my chaos again
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Final button (hold to continue) -->
+                        <div class="mt-6 flex justify-center">
+                            <button id="final-btn"
+                                class="px-6 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-full text-sm shadow beat-glow-target">
+                                Press & hold to see the last page 💗
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION: FINAL -->
+            <section id="final-section"
+                class="hidden min-h-[70vh] flex flex-col items-center justify-center section-transition px-1">
+                <div class="max-w-2xl w-full mx-auto p-4">
+                    <div class="romantic-panel p-8 md:p-10 text-center">
+                        <h2 class="font-dancing text-4xl md:text-5xl romantic-heading heading-breath mb-6">
+                            One last thing, Gelhi🫶 💌
+                        </h2>
+
+                        <p class="text-pink-700 mb-4 text-sm md:text-base">
+                            Thank you for being in my life in the loud moments, the quiet ones, the messy ones and the
+                            soft ones.
+                        </p>
+                        <p class="text-pink-700 mb-4 text-sm md:text-base">
+                            You’re not just my favourite person, you’re my safest place and my sweetest problem. And I’m
+                            not going anywhere.
+                        </p>
+                        <p class="text-pink-700 mb-4 text-sm md:text-base">
+                            Now that you’ve seen all this… you better text me after this and say “I love you, Gulu” or
+                            I’m sending more drama your way. 😼💗
+                        </p>
+
+                        <!-- Promise ring -->
+                        <div class="promise-ring mt-4 mb-6">
+                            <div class="promise-ring-icon">
+                                💍
+                            </div>
+                            <p class="promise-ring-text">
+                                This ring is fake for now… but one day I’m going to put a real one on your finger, and
+                                it’s not coming off. 🤍
+                            </p>
+                        </div>
+
+                        <p class="text-pink-500 text-xs mb-2">
+                            (You can scroll up and read everything again anytime. This page is yours.)
+                        </p>
+                        <p class="text-pink-500 text-xs mb-6">
+                            (If something made you smile, screenshot it and send it to me. I want proof. 📸)
+                        </p>
+
+                        <div class="flex flex-wrap gap-3 justify-center">
+                            <button id="replay-btn"
+                                class="bg-pink-500 hover:bg-pink-600 text-white px-5 py-2 rounded-full text-xs shadow">
+                                Replay the surprise from start 🎈
+                            </button>
+                            <button id="back-to-top-btn"
+                                class="bg-white hover:bg-pink-50 text-pink-600 border border-pink-200 px-5 py-2 rounded-full text-xs shadow-sm">
+                                Take me back to the beginning ⬆️
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="mt-10 mb-24 text-center text-[10px] text-pink-400">
+            Made with way too much overthinking and a lot of love. — Gulu 🫶
+        </footer>
+    </div>
+
+    <!-- LOVE METER (bottom-left) -->
+    <div id="love-meter" class="fixed bottom-4 left-4 z-20">
+        <div class="bg-white/90 rounded-full px-3 py-2 flex flex-col gap-1 shadow-lg border border-pink-200">
+            <div class="flex items-center gap-2">
+                <span class="text-pink-500 text-lg">❤️</span>
+                <div class="w-28 h-2 bg-pink-100 rounded-full overflow-hidden">
+                    <div id="love-meter-fill" class="h-2 bg-pink-500 rounded-full" style="width:0%;"></div>
+                </div>
+            </div>
+            <p id="love-meter-label"
+                class="text-[10px] text-pink-500 uppercase tracking-wide">
+                Love level: 0 / 5
+            </p>
+        </div>
+    </div>
+
+    <!-- AUDIO CONTROLS + MASTER SOUND -->
+    <div class="fixed bottom-4 right-4 z-20 flex flex-col items-end gap-2">
+
+        <!-- Master sound toggle -->
+        <button id="sound-toggle-btn"
+            class="flex items-center gap-1 bg-white/90 border border-pink-200 px-3 py-1.5 rounded-full shadow text-[11px]">
+            <span class="text-pink-500">🔊</span>
+            <span id="sound-toggle-label" class="text-pink-700">Sound on</span>
+        </button>
+
+        <!-- Background music toggle -->
+        <button id="bg-music-btn"
+            class="flex items-center gap-1 bg-pink-100 border border-pink-200 px-3 py-1.5 rounded-full shadow text-[11px]">
+            <span>🎵</span>
+            <span class="text-pink-700">Background music</span>
+        </button>
+
+        <!-- BACKGROUND MUSIC AUDIO -->
+        <audio id="bg-music" loop>
+            <source src="audio/bg-music.mp3" type="audio/mpeg" />
+        </audio>
+
+        <!-- DRAMATIC AUDIO FOR HEART DROP -->
+        <audio id="dramatic-audio">
+            <source src="audio/dramatic.mp3" type="audio/mpeg" />
+        </audio>
+
+        <!-- POP SOUND -->
+        <audio id="pop-sound">
+            <source src="audio/pop.mp3" type="audio/mpeg" />
+        </audio>
+    </div>
+
+    <!-- PROGRESS TOAST -->
+    <div id="progress-toast"></div>
+
+    <!-- MAIN SCRIPT -->
+    <script src="script.js"></script>
+</body>
+
+</html>
