@@ -98,12 +98,13 @@ html, body {
     opacity: 0.6;
 }
 
-/* floating stickers */
+/* floating stickers – disabled to reduce clutter */
 #floating-stickers {
     position: fixed;
     inset: 0;
     pointer-events: none;
     z-index: 2;
+    display: none; /* hides the scattered fixed emojis */
 }
 .floating-sticker {
     position: absolute;
@@ -307,12 +308,19 @@ html, body {
     transform: translateY(0);
 }
 
-/* photo slider */
-.photo-slide {
-    display: none;
+/* PHOTO SECTION – vertical layout, more padding */
+#photo-slider {
+    padding: 1.25rem 1.1rem 1.8rem;
+    border-radius: 1.5rem;
 }
-.photo-slide.active {
+
+/* previously slider; now stack three photos vertically */
+.photo-slide {
     display: block;
+    margin-bottom: 1.75rem;
+}
+.photo-slide:last-child {
+    margin-bottom: 0;
 }
 .photo-slide img {
     display: block;
@@ -320,6 +328,12 @@ html, body {
     height: auto;
     border-radius: 1.25rem;
     object-fit: cover;
+}
+
+/* hide old slider arrows */
+#photo-prev,
+#photo-next {
+    display: none !important;
 }
 
 /* song cards */
@@ -504,7 +518,7 @@ main {
     background: linear-gradient(120deg, #f97316, #ec4899);
 }
 
-/* Now playing bar under playlist */
+/* Now playing bar under playlist – better alignment */
 #now-playing-bar {
     margin-top: 0.75rem;
     padding: 0.4rem 0.9rem;
@@ -512,8 +526,14 @@ main {
     background: rgba(255, 255, 255, 0.95);
     border: 1px solid rgba(244, 114, 182, 0.4);
     max-width: 100%;
-    text-align: center;
     overflow: hidden;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.4rem 0.75rem;
+}
+#now-playing-bar > div:first-child {
+    min-width: 0; /* allow truncate */
 }
 #now-playing-text {
     font-size: 0.75rem;
@@ -521,9 +541,15 @@ main {
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
+    max-width: 68vw;
+}
+@media (min-width: 768px) {
+    #now-playing-text {
+        max-width: 320px;
+    }
 }
 
-/* keep soundwave nicely under text */
+/* keep soundwave nicely near text */
 #soundwave {
     display: inline-flex;
     justify-content: center;

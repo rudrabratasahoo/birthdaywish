@@ -238,7 +238,7 @@ function showProgressToast(message) {
     }, 2800);
 }
 
-// Try to start background music after user interaction
+// Try to start background music after user interaction OR on load
 function startBackgroundMusicAuto() {
     if (!el.bgMusic) return;
     if (isMasterMuted) return;
@@ -255,6 +255,8 @@ function startBackgroundMusicAuto() {
 
 // ------------------------------
 // BACKGROUND VISUALS
+// (hearts / parallax helpers kept but NOT called now,
+// to reduce clutter of random fixed emojis)
 // ------------------------------
 function createFloatingHearts() {
     if (!el.floatingElements) return;
@@ -346,847 +348,422 @@ function startIntroCountdown() {
             el.introOverlay.classList.add("hidden");
         }
 
-        // try to start background music after user interaction
+        // start background music when she begins
         startBackgroundMusicAuto();
     }
 
     el.startBtn.onclick = handler;
     el.startBtn.addEventListener("touchend", handler, { passive: false });
 }
-
 // ------------------------------
-// GAME PROGRESS + PARTICLES
+// BALLOON GAME
 // ------------------------------
-function updateProgress() {
-    if (!el.progressText || !el.balloonProgressBar) return;
-    el.progressText.textContent = "Popped " + poppedCount + " / " + BALLOON_COUNT;
-    const pct = (poppedCount / BALLOON_COUNT) * 100;
-    el.balloonProgressBar.style.width = Math.min(100, pct) + "%";
-}
 
-function spawnHeartsAt(element) {
-    const rect = element.getBoundingClientRect();
-    for (let i = 0; i < 6; i++) {
-        const heart = document.createElement("div");
-        heart.classList.add("heart-particle");
-        heart.textContent = "💗";
-        const startX = rect.left + rect.width / 2;
-        const startY = rect.top + rect.height / 2;
-        heart.style.left = startX + "px";
-        heart.style.top = startY + "px";
-        document.body.appendChild(heart);
-        setTimeout(function () { heart.remove(); }, 600);
-    }
-}
-
-function spawnMiniConfettiAt(element) {
-    const rect = element.getBoundingClientRect();
-    for (let i = 0; i < 10; i++) {
-        const piece = document.createElement("div");
-        piece.classList.add("mini-confetti");
-        const startX = rect.left + rect.width / 2;
-        const startY = rect.top + rect.height / 2;
-        piece.style.left = startX + "px";
-        piece.style.top = startY + "px";
-        piece.style.setProperty("--dx", ((Math.random() - 0.5) * 80) + "px");
-        piece.style.setProperty("--dy", (-40 - Math.random() * 60) + "px");
-        document.body.appendChild(piece);
-        setTimeout(function () { piece.remove(); }, 700);
-    }
-}
-
-function getHintForDistance(distance) {
-    if (distance === 0) {
-        return "You literally tapped the right one, you chaos creature 😭🔥";
-    }
-    const maxDist = BALLOON_COUNT - 1;
-    const ratio = distance / maxDist;
-    if (ratio > 0.66) {
-        return "Ice cold 🧊 you’re so far from it, unlike us.";
-    } else if (ratio > 0.4) {
-        return "A little cold ❄️ but you’re kinda walking in the right direction, the way we did slowly.";
-    } else if (ratio > 0.2) {
-        return "Warmmm 🥵 you’re getting closer baby, just like we got closer without even realising.";
-    } else if (ratio > 0.1) {
-        return "Hot hot hot 🔥 you’re very close now, like one more overthinking session and you’d be on it.";
-    } else {
-        return "You’re basically on top of it now 😳💗 just a few taps away, like my self-control around you.";
-    }
-}
-
-// ------------------------------
-// GAME: BALLOONS
-// ------------------------------
-function setupGame() {
+function initBalloons() {
     if (!el.balloonContainer) return;
 
     el.balloonContainer.innerHTML = "";
-    if (el.gameMessage) el.gameMessage.classList.add("hidden");
-    if (el.dragInstructions) el.dragInstructions.classList.add("hidden");
-    if (el.dragArea) el.dragArea.classList.add("hidden");
-
     poppedCount = 0;
-    updateProgress();
-
-    winningIndexGlobal = Math.floor(Math.random() * BALLOON_COUNT);
-    let lucky = Math.floor(Math.random() * BALLOON_COUNT);
-    if (lucky === winningIndexGlobal) {
-        lucky = (lucky + 1) % BALLOON_COUNT;
-    }
-    luckyIndexGlobal = lucky;
+    luckyIndexGlobal = Math.floor(Math.random() * BALLOON_COUNT);
 
     for (let i = 0; i < BALLOON_COUNT; i++) {
-        const balloon = document.createElement("button");
-        balloon.className =
-            "balloon-btn text-white rounded-full w-16 h-20 md:w-20 md:h-24 flex flex-col items-center justify-center text-2xl shadow-lg transition-transform transform hover:scale-110";
-        const emojiSpan = document.createElement("span");
-        emojiSpan.textContent = "🎈";
-        const hintSpan = document.createElement("span");
-        hintSpan.className = "text-[10px] mt-1 opacity-80";
-        hintSpan.textContent = "";
-
-        balloon.appendChild(emojiSpan);
-        balloon.appendChild(hintSpan);
-
-        const color = balloonColors[Math.floor(Math.random() * balloonColors.length)];
-        balloon.style.backgroundColor = color;
-
-        if (i === luckyIndexGlobal) {
-            balloon.setAttribute("data-lucky", "1");
-            hintSpan.textContent = "maybe me 👀";
-        }
-
-        balloon.addEventListener("click", function () {
-            const isWinning = (i === winningIndexGlobal);
-            const isLucky = (i === luckyIndexGlobal && !isWinning);
-            popBalloon(balloon, i, isWinning, isLucky);
-        });
-
+        const balloon = document.createElement("div");
+        balloon.classList.add("balloon-item");
+        balloon.style.backgroundColor = balloonColors[i % balloonColors.length];
+        balloon.setAttribute("data-index", i);
+        balloon.onclick = handleBalloonClick;
         el.balloonContainer.appendChild(balloon);
     }
+    updateBalloonProgress();
+}
 
-    completedSteps.game = false;
-    updateLoveMeter();
+function handleBalloonClick(e) {
+    const balloon = e.currentTarget;
+    const index = parseInt(balloon.getAttribute("data-index"));
+
+    if (index === luckyIndexGlobal) {
+        // correct one 🎉
+        balloon.classList.add("correct-balloon");
+        playPopSound();
+        poppedCount++;
+
+        setTimeout(() => {
+            showDragHeart();
+        }, 400);
+    } else {
+        // wrong one
+        balloon.classList.add("wrong-balloon");
+        vibrate(60);
+        setTimeout(() => balloon.classList.remove("wrong-balloon"), 400);
+
+        // show random cute error message
+        const msg = wrongClickMessages[Math.floor(Math.random() * wrongClickMessages.length)];
+        el.gameMessage.textContent = msg;
+
+        poppedCount++;
+    }
+
+    updateBalloonProgress();
+}
+
+function updateBalloonProgress() {
+    if (!el.balloonProgressBar) return;
+
+    const progress = poppedCount / BALLOON_COUNT;
+    el.balloonProgressBar.style.transform = `scaleX(${progress})`;
+    el.progressText.textContent = `Popped ${poppedCount} / ${BALLOON_COUNT}`;
 }
 
 function playPopSound() {
-    if (!el.popSound || isMasterMuted) return;
-    try {
-        el.popSound.volume = BG_TARGET_VOLUME;
+    if (el.popSound && !isMasterMuted) {
         el.popSound.currentTime = 0;
-        el.popSound.play().catch(function () { });
-    } catch (e) { }
-}
-
-function popBalloon(balloon, index, isWinning, isLucky) {
-    if (balloon.getAttribute("data-popped") === "1") return;
-    balloon.setAttribute("data-popped", "1");
-
-    playPopSound();
-    spawnHeartsAt(balloon);
-
-    if (!isWinning) {
-        vibrate(15);
-        spawnMiniConfettiAt(balloon);
+        el.popSound.play();
     }
-
-    if (isLucky && el.gameMessage) {
-        el.gameMessage.textContent = "That one was lucky 💘 Just like me finding you.";
-        el.gameMessage.classList.remove("hidden");
-    }
-
-    balloon.style.transition = "transform 0.2s ease, opacity 0.2s ease";
-    balloon.style.transform = "scale(1.2)";
-
-    setTimeout(function () {
-        balloon.style.opacity = "0";
-        balloon.style.transform = "scale(0.4)";
-        setTimeout(function () {
-            balloon.remove();
-            poppedCount++;
-            updateProgress();
-
-            const distance = Math.abs(index - winningIndexGlobal);
-
-            if (isWinning) {
-                vibrate([30, 50, 30]);
-                handleWinningBalloon();
-            } else {
-                handleWrongClick(distance);
-            }
-        }, 120);
-    }, 40);
 }
 
-function handleWrongClick(distance) {
-    if (!el.gameMessage) return;
-    const base = wrongClickMessages[Math.floor(Math.random() * wrongClickMessages.length)];
-    const hint = getHintForDistance(distance);
-    el.gameMessage.textContent = base + " " + hint;
-    el.gameMessage.classList.remove("hidden");
-    el.gameMessage.classList.add("shake");
-    setTimeout(function () {
-        el.gameMessage.classList.remove("shake");
-    }, 300);
-}
+// After correct balloon → drag the heart mini-game
+function showDragHeart() {
+    if (!el.dragInstructions) return;
 
-function handleWinningBalloon() {
-    if (!el.gameMessage || !el.dragInstructions || !el.dragArea) return;
-
-    el.gameMessage.textContent = "You found my heart, baby 💘 Now drag it into the circle!";
-    el.gameMessage.classList.remove("hidden");
     el.dragInstructions.classList.remove("hidden");
-    el.dragArea.classList.remove("hidden");
+    el.heartDraggable.classList.remove("hidden");
 
-    enableHeartDrag();
+    // highlight the dropzone
+    el.heartDropzone.classList.add("dropzone-glow");
 
-    if (el.dramaticAudio && !isMasterMuted) {
-        try {
-            el.dramaticAudio.currentTime = 0;
-            el.dramaticAudio.play().catch(function () { });
-        } catch (e) { }
+    if (!heartDragInitialized) {
+        initHeartDrag();
+        heartDragInitialized = true;
     }
 }
 
-// ------------------------------
-// DRAG HEART (pointer-based)
-// ------------------------------
-function enableHeartDrag() {
-    if (!el.heartDraggable || !el.heartDropzone) return;
-    if (heartDragInitialized) return;
-    heartDragInitialized = true;
-
+function initHeartDrag() {
     const heart = el.heartDraggable;
-    const dropzone = el.heartDropzone;
+    const drop = el.heartDropzone;
 
+    let offsetX, offsetY;
     let dragging = false;
-    let activePointerId = null;
-    let offsetX = 0;
-    let offsetY = 0;
-    let heartWidth = 0;
-    let heartHeight = 0;
 
-    heart.style.touchAction = "none";
+    heart.addEventListener("mousedown", startDrag);
+    heart.addEventListener("touchstart", startDrag, { passive: false });
 
-    function onPointerDown(e) {
-        if (e.button !== undefined && e.button !== 0) return;
-
+    function startDrag(e) {
+        e.preventDefault();
         dragging = true;
-        activePointerId = (e.pointerId !== undefined) ? e.pointerId : null;
         heart.classList.add("dragging");
 
         const rect = heart.getBoundingClientRect();
-        heartWidth = rect.width;
-        heartHeight = rect.height;
-
-        offsetX = e.clientX - rect.left;
-        offsetY = e.clientY - rect.top;
-
-        heart.style.position = "fixed";
-        heart.style.left = rect.left + "px";
-        heart.style.top = rect.top + "px";
-
-        if (heart.setPointerCapture && activePointerId !== null) {
-            heart.setPointerCapture(activePointerId);
+        if (e.touches) {
+            offsetX = e.touches[0].clientX - rect.left;
+            offsetY = e.touches[0].clientY - rect.top;
+        } else {
+            offsetX = e.clientX - rect.left;
+            offsetY = e.clientY - rect.top;
         }
 
-        e.preventDefault();
+        document.addEventListener("mousemove", drag);
+        document.addEventListener("mouseup", endDrag);
+        document.addEventListener("touchmove", drag, { passive: false });
+        document.addEventListener("touchend", endDrag);
     }
 
-    function onPointerMove(e) {
+    function drag(e) {
         if (!dragging) return;
-        if (activePointerId !== null && e.pointerId !== activePointerId) return;
+        let x, y;
 
-        e.preventDefault();
-
-        let x = e.clientX - offsetX;
-        let y = e.clientY - offsetY;
-
-        const maxX = window.innerWidth - heartWidth;
-        const maxY = window.innerHeight - heartHeight;
-        if (x < 0) x = 0;
-        if (y < 0) y = 0;
-        if (x > maxX) x = maxX;
-        if (y > maxY) y = maxY;
-
-        const dropRect = dropzone.getBoundingClientRect();
-        const dropCX = dropRect.left + dropRect.width / 2;
-        const dropCY = dropRect.top + dropRect.height / 2;
-
-        const heartCX = x + heartWidth / 2;
-        const heartCY = y + heartHeight / 2;
-
-        const dx = dropCX - heartCX;
-        const dy = dropCY - heartCY;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-
-        const magnetRadius = 140;
-        if (dist < magnetRadius) {
-            const strength = (magnetRadius - dist) / magnetRadius * 0.4;
-            x += dx * strength;
-            y += dy * strength;
+        if (e.touches) {
+            x = e.touches[0].clientX - offsetX;
+            y = e.touches[0].clientY - offsetY;
+        } else {
+            x = e.clientX - offsetX;
+            y = e.clientY - offsetY;
         }
 
-        heart.style.left = x + "px";
-        heart.style.top = y + "px";
+        heart.style.left = `${x}px`;
+        heart.style.top = `${y}px`;
     }
 
-    function onPointerUp(e) {
-        if (!dragging) return;
-        if (activePointerId !== null && e.pointerId !== activePointerId) return;
-
+    function endDrag() {
         dragging = false;
         heart.classList.remove("dragging");
 
-        if (heart.releasePointerCapture && activePointerId !== null) {
-            try {
-                heart.releasePointerCapture(activePointerId);
-            } catch (err) { }
-        }
-        activePointerId = null;
-
         const heartRect = heart.getBoundingClientRect();
-        const dropRect = dropzone.getBoundingClientRect();
+        const dropRect = drop.getBoundingClientRect();
 
-        const overlap = !(
+        const inZone = !(
             heartRect.right < dropRect.left ||
             heartRect.left > dropRect.right ||
             heartRect.bottom < dropRect.top ||
             heartRect.top > dropRect.bottom
         );
 
-        if (overlap) {
-            handleSuccessfulDrop();
+        if (inZone) {
+            completeBalloonGame();
         }
-
-        e.preventDefault();
     }
-
-    heart.addEventListener("pointerdown", onPointerDown);
-    window.addEventListener("pointermove", onPointerMove);
-    window.addEventListener("pointerup", onPointerUp);
-    window.addEventListener("pointercancel", onPointerUp);
 }
 
-function handleSuccessfulDrop() {
-    el.heartDraggable.style.position = "static";
-    el.heartDraggable.style.left = "";
-    el.heartDraggable.style.top = "";
-    el.dragArea.classList.add("hidden");
+function completeBalloonGame() {
+    showProgressToast("Game completed! 🎉");
+
+    el.heartDropzone.classList.remove("dropzone-glow");
     el.dragInstructions.classList.add("hidden");
+    el.heartDraggable.classList.add("hidden");
 
-    if (el.gameMessage) {
-        el.gameMessage.textContent = "You handled my heart perfectly, sweetheart 💝";
-    }
-    startConfetti();
+    el.gameMessage.textContent = "Aww you found my heart 💗";
     completedSteps.game = true;
-    updateLoveMeter();
-    showProgressToast("Level 1 unlocked: you found my heart 🎈");
 
-    heartDragInitialized = false;
+    unlockSection("letter");
+    updateLoveMeter(1);
 
-    setTimeout(function () {
-        showSection("letter");
-        startTypewriter();
-    }, 1800);
+    setTimeout(() => {
+        scrollToSection(el.messageSection);
+    }, 600);
 }
 
 // ------------------------------
-// TYPEWRITER
+// MESSAGE (TYPEWRITER)
 // ------------------------------
 function startTypewriter() {
-    if (el.typewriter) {
-        el.typewriter.innerHTML = "";
-    }
-    typingIndex = 0;
-    if (el.typingIndicator) {
-        el.typingIndicator.classList.remove("hidden");
-    }
-    typeNextChar();
+    if (!el.typewriter || !el.typingIndicator) return;
+
+    el.typingIndicator.classList.remove("hidden");
+
+    setTimeout(() => {
+        el.typingIndicator.classList.add("hidden");
+        typeNextCharacter();
+    }, 1200);
 }
 
-function typeNextChar() {
+function typeNextCharacter() {
     if (typingIndex < messageText.length) {
-        const char = messageText.charAt(typingIndex);
-        if (el.typewriter) {
-            el.typewriter.innerHTML += char;
-        }
+        el.typewriter.textContent += messageText[typingIndex];
         typingIndex++;
-        setTimeout(typeNextChar, 40);
+
+        setTimeout(typeNextCharacter, 22);
     } else {
-        if (el.typingIndicator) {
-            el.typingIndicator.classList.add("hidden");
-        }
+        // finished typing
         completedSteps.letter = true;
-        updateLoveMeter();
-        showProgressToast("Level 2 unlocked: you survived my dramatic letter 💌");
+        updateLoveMeter(1);
+        unlockSection("photos");
+
+        setTimeout(() => {
+            el.surpriseBtn.classList.remove("hidden");
+        }, 800);
     }
 }
 
-// ------------------------------
-// SECTION FLOW + NAV + CURRENT LABEL
-// ------------------------------
-function showSection(name) {
-    const sections = {
-        game: el.gameSection,
-        letter: el.messageSection,
-        photos: el.photoSection,
-        playlist: el.playlistSection,
-        final: el.finalSection
-    };
-    for (var key in sections) {
-        const sec = sections[key];
-        if (!sec) continue;
-        sec.classList.add("hidden");
-        sec.classList.remove("section-visible");
-    }
-    const target = sections[name] || el.gameSection;
-    if (target) {
-        target.classList.remove("hidden");
-        requestAnimationFrame(function () {
-            target.classList.add("section-visible");
-        });
-    }
-    setActiveNav(name);
-    updateCurrentSectionLabel(name);
-    window.scrollTo({ top: 0, behavior: "smooth" });
+// Scroll to next section
+function scrollToSection(section) {
+    if (!section) return;
+    section.scrollIntoView({ behavior: "smooth" });
 }
 
-function setActiveNav(name) {
+// Unlock navigation pill
+function unlockSection(key) {
     if (!el.navPills) return;
-    el.navPills.forEach(function (pill) {
-        const sec = pill.getAttribute("data-section");
-        if (sec === name) pill.classList.add("nav-active");
-        else pill.classList.remove("nav-active");
+    el.navPills.forEach((pill) => {
+        if (pill.dataset.section === key) {
+            pill.classList.add("nav-active");
+        }
     });
 }
 
-function setupSectionNav() {
-    if (!el.navPills) return;
-    el.navPills.forEach(function (pill) {
-        pill.addEventListener("click", function () {
-            if (!hasUnlockedNav) return;
-            const sec = pill.getAttribute("data-section");
-            if (!sec) return;
-            showSection(sec);
-        });
-    });
-}
+// Love meter leveling
+function updateLoveMeter(amount) {
+    let current = parseInt(el.loveMeterFill.dataset.level || "0");
+    current += amount;
+    current = Math.max(0, Math.min(current, 5));
 
-function unlockNav() {
-    hasUnlockedNav = true;
-    if (el.sectionNav) {
-        el.sectionNav.classList.remove("hidden");
-        el.sectionNav.classList.add("nav-visible");
-    }
-}
-
-// update the "You’re exploring: ___" label
-function updateCurrentSectionLabel(sectionName) {
-    if (!el.currentSectionName) return;
-
-    let label = "Game 💗";
-    if (sectionName === "letter") label = "Letter 💌";
-    else if (sectionName === "photos") label = "Memories 📸";
-    else if (sectionName === "playlist") label = "Playlist 🎧";
-    else if (sectionName === "final") label = "Final page 💍";
-
-    el.currentSectionName.textContent = label;
-
-    if (el.currentSectionLabel) {
-        el.currentSectionLabel.textContent = "You’re exploring:";
-    }
-}
-
-// LETTER → PHOTOS
-function setupLetterButton() {
-    if (!el.surpriseBtn) return;
-    el.surpriseBtn.addEventListener("click", function () {
-        showSection("photos");
-        completedSteps.photos = true;
-        updateLoveMeter();
-        showProgressToast("Level 3 unlocked: you opened our memories 📸");
-    });
-}
-
-// PHOTOS → PLAYLIST
-function setupPhotosNextButton() {
-    if (!el.photosNextBtn) return;
-    el.photosNextBtn.addEventListener("click", function () {
-        showSection("playlist");
-        renderPlaylist();
-        completedSteps.playlist = true;
-        updateLoveMeter();
-        showProgressToast("Level 4 unlocked: our tiny playlist is yours 🎧");
-    });
+    el.loveMeterFill.dataset.level = current;
+    el.loveMeterFill.style.width = `${(current / 5) * 100}%`;
+    el.loveMeterLabel.textContent = `LOVE LEVEL: ${current} / 5`;
 }
 
 // ------------------------------
-// PHOTO SLIDER
+// PHOTOS (VERTICAL LAYOUT — NO MORE SLIDER)
 // ------------------------------
-function initPhotoSlider() {
+
+function setupPhotos() {
     if (!el.photoSlider) return;
-    photoSlides = Array.from(el.photoSlider.querySelectorAll(".photo-slide"));
-    if (!photoSlides.length) return;
 
-    currentPhotoIndex = 0;
-    photoSlides[0].classList.add("active");
-    createPhotoDots();
-    updatePhotoDots();
+    // Remove old content
+    el.photoSlider.innerHTML = "";
 
-    if (el.photoPrev) {
-        el.photoPrev.addEventListener("click", function () {
-            showPhotoSlide(currentPhotoIndex - 1);
-        });
-    }
-    if (el.photoNext) {
-        el.photoNext.addEventListener("click", function () {
-            showPhotoSlide(currentPhotoIndex + 1);
-        });
-    }
+    const photos = [
+        { src: "img/photo1.jpg", caption: "The first moment I saw you, something in me softened. 💗" },
+        { src: "img/photo2.jpg", caption: "This one? I still look at it and smile like an idiot. 😌💫" },
+        { src: "img/photo3.jpg", caption: "Another tiny memory that lives rent-free in my head. 🫶" }
+    ];
 
-    let startX = null;
-    el.photoSlider.addEventListener("touchstart", function (e) {
-        const t = e.touches[0];
-        if (!t) return;
-        startX = t.clientX;
-    }, { passive: true });
+    photos.forEach((p) => {
+        const wrapper = document.createElement("div");
+        wrapper.classList.add("photo-slide", "active"); // already visible vertically
 
-    el.photoSlider.addEventListener("touchend", function (e) {
-        if (startX == null) return;
-        const t = e.changedTouches[0];
-        const dx = t.clientX - startX;
-        if (Math.abs(dx) > 40) {
-            if (dx < 0) showPhotoSlide(currentPhotoIndex + 1);
-            else showPhotoSlide(currentPhotoIndex - 1);
-        }
-        startX = null;
+        wrapper.innerHTML = `
+            <img src="${p.src}" alt="Memory">
+            <p class="text-center text-pink-700 mt-3">${p.caption}</p>
+        `;
+        el.photoSlider.appendChild(wrapper);
     });
+
+    // Remove nav buttons permanently
+    if (el.photoPrev) el.photoPrev.classList.add("hidden");
+    if (el.photoNext) el.photoNext.classList.add("hidden");
+    if (el.photoDots) el.photoDots.classList.add("hidden");
+
+    // The "Next" button to continue
+    if (el.photosNextBtn) el.photosNextBtn.classList.remove("hidden");
 }
 
-function createPhotoDots() {
-    if (!el.photoDots) return;
-    el.photoDots.innerHTML = "";
-    photoSlides.forEach(function (_, idx) {
-        const dot = document.createElement("button");
-        dot.className = "w-2.5 h-2.5 rounded-full bg-pink-200";
-        dot.addEventListener("click", function () {
-            showPhotoSlide(idx);
-        });
-        el.photoDots.appendChild(dot);
-    });
+function completePhotosSection() {
+    completedSteps.photos = true;
+    updateLoveMeter(1);
+    unlockSection("playlist");
+    scrollToSection(el.playlistSection);
 }
-
-function updatePhotoDots() {
-    if (!el.photoDots) return;
-    const dots = Array.from(el.photoDots.children);
-    dots.forEach(function (dot, idx) {
-        if (idx === currentPhotoIndex) {
-            dot.classList.add("bg-pink-500");
-            dot.classList.remove("bg-pink-200");
-        } else {
-            dot.classList.add("bg-pink-200");
-            dot.classList.remove("bg-pink-500");
-        }
-    });
-}
-
-function showPhotoSlide(index) {
-    if (!photoSlides.length) return;
-    if (index < 0) index = photoSlides.length - 1;
-    if (index >= photoSlides.length) index = 0;
-    photoSlides.forEach(function (slide) {
-        slide.classList.remove("active");
-    });
-    currentPhotoIndex = index;
-    photoSlides[currentPhotoIndex].classList.add("active");
-    updatePhotoDots();
-}
-
 // ------------------------------
-// PLAYLIST
+// PLAYLIST – HIDE SONGS UNTIL PLAY
 // ------------------------------
-function renderPlaylist() {
+
+function setupPlaylist() {
     if (!el.playlistContainer) return;
+
     el.playlistContainer.innerHTML = "";
 
-    playlist.forEach(function (track, index) {
+    playlistSongs.forEach((song, index) => {
         const card = document.createElement("div");
-        card.className = "song-card";
+        card.classList.add("song-card");
 
-        const left = document.createElement("div");
-        left.className = "flex items-start gap-2 flex-1";
+        card.innerHTML = `
+            <div>
+                <div class="track-index">${index + 1}</div>
+            </div>
 
-        const indexDot = document.createElement("div");
-        indexDot.className = "track-index";
-        indexDot.textContent = (index + 1).toString();
+            <div class="flex-1">
+                <p class="song-title hidden-info" id="song-title-${index}">
+                    Secret Track 😏💗
+                </p>
 
-        const textWrap = document.createElement("div");
-        const titleEl = document.createElement("div");
-        titleEl.className = "song-title";
+                <p class="song-artist hidden-info" id="song-artist-${index}">
+                    I'll only tell you if you press Play…
+                </p>
 
-        const artistEl = document.createElement("div");
-        artistEl.className = "song-artist";
+                <p class="song-reason hidden-info" id="song-reason-${index}">
+                    This one is locked until you behave 😌🔒
+                </p>
+            </div>
 
-        const reasonEl = document.createElement("div");
-        reasonEl.className = "song-reason";
+            <button class="playlist-play-btn" data-index="${index}">
+                Play
+            </button>
+        `;
 
-        // hidden / revealed logic
-        let revealed = !!track._revealed;
-
-        function applyText() {
-            if (revealed) {
-                titleEl.textContent = track.title;
-                artistEl.textContent = track.artist;
-                reasonEl.textContent = track.reason;
-            } else {
-                titleEl.textContent = "Secret Track 😏💗";
-                artistEl.textContent = "I’ll only tell you if you press Play…";
-                reasonEl.textContent = "This one is locked until you behave 😌🔒";
-            }
-        }
-
-        applyText();
-        if (revealed) {
-            card.classList.add("song-revealed");
-        }
-
-        textWrap.appendChild(titleEl);
-        textWrap.appendChild(artistEl);
-        textWrap.appendChild(reasonEl);
-
-        left.appendChild(indexDot);
-        left.appendChild(textWrap);
-
-        const right = document.createElement("div");
-        right.className = "flex flex-col items-end gap-1";
-
-        const playBtn = document.createElement("button");
-        playBtn.className = "play-btn bg-pink-500 text-white rounded-full";
-        playBtn.textContent = "Play";
-
-        const audio = document.createElement("audio");
-        audio.className = "song-audio";
-        audio.src = track.audioUrl;
-        audio.preload = "metadata";
-
-        right.appendChild(playBtn);
-        card.appendChild(left);
-        card.appendChild(right);
         el.playlistContainer.appendChild(card);
+    });
 
-        function revealCard() {
-            if (!revealed) {
-                revealed = true;
-                track._revealed = true;
-                applyText();
-                card.classList.add("song-revealed");
-            }
-        }
-
-        playBtn.addEventListener("click", function () {
-            if (currentAudio === audio && !audio.paused) {
-                audio.pause();
-                playBtn.textContent = "Play";
-                stopNowPlaying();
-
-                if (bgWasPlayingBeforeTrack && el.bgMusic && !isMasterMuted) {
-                    el.bgMusic.play().catch(function () { });
-                    if (el.bgMusicBtn) el.bgMusicBtn.classList.add("bg-music-on");
-                }
-                bgWasPlayingBeforeTrack = false;
-            } else {
-                playSong(audio, track, card, playBtn);
-                revealCard();
-            }
-        });
+    // Attach play handlers
+    document.querySelectorAll(".playlist-play-btn").forEach((btn) => {
+        btn.addEventListener("click", handleSongPlay);
     });
 }
 
-function playSong(audio, track, card, playBtn) {
-    stopCurrentSong();
+function handleSongPlay(e) {
+    const index = parseInt(e.currentTarget.dataset.index);
+    const song = playlistSongs[index];
 
+    // Stop other songs
+    playlistSongs.forEach((s, i) => {
+        const audio = document.getElementById(`audio-song-${i}`);
+        if (audio) audio.pause();
+    });
+
+    // Reveal hidden details
+    revealSongDetails(index);
+
+    // Play selected song
+    const audioEl = document.getElementById(`audio-song-${index}`);
+    if (audioEl) {
+        audioEl.currentTime = 0;
+        audioEl.play();
+    }
+
+    // Pause background music when playlist plays
     if (el.bgMusic && !el.bgMusic.paused) {
         el.bgMusic.pause();
-        bgWasPlayingBeforeTrack = true;
-        if (el.bgMusicBtn) el.bgMusicBtn.classList.remove("bg-music-on");
     }
 
-    currentAudio = audio;
-    audio.muted = isMasterMuted;
-    audio.currentTime = track.highlightStart || 0;
-    audio.play().catch(function () { });
+    updateNowPlaying(song);
+    updateLoveMeter(1);
 
-    document.querySelectorAll(".song-card").forEach(function (c) {
-        c.classList.remove("song-playing");
+    // Update card visual highlight
+    updatePlaylistHighlight(index);
+}
+
+function revealSongDetails(i) {
+    document.getElementById(`song-title-${i}`).textContent = playlistSongs[i].title;
+    document.getElementById(`song-artist-${i}`).textContent = playlistSongs[i].artist;
+    document.getElementById(`song-reason-${i}`).textContent = playlistSongs[i].reason;
+
+    document.getElementById(`song-title-${i}`).classList.remove("hidden-info");
+    document.getElementById(`song-artist-${i}`).classList.remove("hidden-info");
+    document.getElementById(`song-reason-${i}`).classList.remove("hidden-info");
+}
+
+function updateNowPlaying(song) {
+    if (!el.nowPlayingText) return;
+
+    el.nowPlayingText.textContent = `Now playing: ${song.title} — ${song.artist}`;
+}
+
+function updatePlaylistHighlight(activeIndex) {
+    const cards = document.querySelectorAll(".song-card");
+    cards.forEach((card, i) => {
+        card.classList.toggle("song-playing", i === activeIndex);
+        if (i === activeIndex) card.classList.add("song-revealed");
     });
-    card.classList.add("song-playing");
-    playBtn.textContent = "Pause";
-
-    if (el.nowPlayingBar && el.nowPlayingText) {
-        el.nowPlayingBar.classList.remove("hidden");
-        el.nowPlayingText.textContent = "Now playing: " + track.title + " — " + track.artist;
-    }
-    if (el.soundwave) {
-        el.soundwave.classList.remove("hidden");
-    }
-
-    audio.onended = function () {
-        playBtn.textContent = "Play";
-        stopNowPlaying();
-        if (bgWasPlayingBeforeTrack && el.bgMusic && !isMasterMuted) {
-            el.bgMusic.play().catch(function () { });
-            if (el.bgMusicBtn) el.bgMusicBtn.classList.add("bg-music-on");
-        }
-        bgWasPlayingBeforeTrack = false;
-    };
 }
 
-function stopCurrentSong() {
-    if (currentAudio) {
-        currentAudio.pause();
-        currentAudio.currentTime = 0;
-        currentAudio = null;
-    }
-    document.querySelectorAll(".song-card").forEach(function (c) {
-        c.classList.remove("song-playing");
-    });
-    stopNowPlaying();
-}
-
-function stopNowPlaying() {
-    if (el.nowPlayingBar) el.nowPlayingBar.classList.add("hidden");
-    if (el.soundwave) el.soundwave.classList.add("hidden");
-}
 
 // ------------------------------
-// CONFETTI
+// FINAL PAGE – EDIT RING LINE
 // ------------------------------
-function startConfetti() {
-    if (!el.confettiCanvas || !confettiCtx) return;
 
-    el.confettiCanvas.width = window.innerWidth;
-    el.confettiCanvas.height = window.innerHeight;
-    el.confettiCanvas.classList.remove("hidden");
+function updateFinalPage() {
+    if (!el.finalRingText) return;
 
-    confettiPieces = [];
-    for (let i = 0; i < 150; i++) {
-        confettiPieces.push({
-            x: Math.random() * el.confettiCanvas.width,
-            y: Math.random() * el.confettiCanvas.height - el.confettiCanvas.height,
-            w: 6 + Math.random() * 4,
-            h: 8 + Math.random() * 6,
-            speed: 2 + Math.random() * 3,
-            color: ["#ec4899", "#fb7185", "#f97316", "#22c55e", "#3b82f6"][Math.floor(Math.random() * 5)],
-            tilt: Math.random() * 10,
-            tiltSpeed: 0.05 + Math.random() * 0.12
+    el.finalRingText.textContent =
+        "This ring is symbolic for now… but my promise isn’t. I’m yours — now, later, and for every quiet tomorrow we get to share. 💍💕";
+}
+
+
+// ------------------------------
+// BACKGROUND MUSIC — AUTO START
+// ------------------------------
+
+function initBackgroundMusic() {
+    if (!el.bgMusic) return;
+
+    // Try autoplay (won't work on some phones)
+    const playPromise = el.bgMusic.play();
+
+    if (playPromise !== undefined) {
+        playPromise.catch(() => {
+            // fallback → start after clicking "Begin"
+            document.body.addEventListener(
+                "click",
+                () => {
+                    el.bgMusic.play();
+                },
+                { once: true }
+            );
         });
     }
 
-    if (confettiAnimationId) cancelAnimationFrame(confettiAnimationId);
-    confettiLoop();
-
-    setTimeout(function () {
-        el.confettiCanvas.classList.add("hidden");
-        if (confettiAnimationId) cancelAnimationFrame(confettiAnimationId);
-    }, 2600);
-}
-
-function confettiLoop() {
-    if (!confettiCtx || !el.confettiCanvas) return;
-    confettiAnimationId = requestAnimationFrame(confettiLoop);
-    confettiCtx.clearRect(0, 0, el.confettiCanvas.width, el.confettiCanvas.height);
-
-    confettiPieces.forEach(function (p) {
-        p.y += p.speed;
-        p.tilt += p.tiltSpeed;
-
-        if (p.y > el.confettiCanvas.height) {
-            p.y = -10;
-            p.x = Math.random() * el.confettiCanvas.width;
-        }
-
-        confettiCtx.save();
-        confettiCtx.translate(p.x, p.y);
-        confettiCtx.rotate(p.tilt);
-        confettiCtx.fillStyle = p.color;
-        confettiCtx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
-        confettiCtx.restore();
-    });
-}
-
-// ------------------------------
-// RELATIONSHIP COUNTER + COMPLIMENTS
-// ------------------------------
-function updateRelationshipCounter() {
-    const now = new Date();
-    const days = daysBetween(relationshipStartDate, now);
-
-    if (el.relationshipCounter) {
-        el.relationshipCounter.textContent =
-            "We’ve been in each other’s lives for about " + days +
-            " days now. That’s a lot of overthinking, chaos and soft moments. 🫶";
-    }
-    if (el.relationshipCounterHero) {
-        el.relationshipCounterHero.textContent =
-            "Day " + days + " of loving you (and still not enough). 💗";
-    }
-}
-
-function rotateCompliments() {
-    if (!el.complimentText) return;
-    complimentIndex = (complimentIndex + 1) % compliments.length;
-    el.complimentText.textContent = compliments[complimentIndex];
-}
-
-// ------------------------------
-// LOVE METER
-// ------------------------------
-function updateLoveMeter() {
-    if (!el.loveMeterFill || !el.loveMeterLabel) return;
-
-    let level = 0;
-    if (completedSteps.game) level++;
-    if (completedSteps.letter) level++;
-    if (completedSteps.photos) level++;
-    if (completedSteps.playlist) level++;
-    if (completedSteps.final) level++;
-
-    const pct = (level / 5) * 100;
-    el.loveMeterFill.style.width = pct + "%";
-    el.loveMeterLabel.textContent = "Love level: " + level + " / 5";
-}
-
-// ------------------------------
-// SOUND + BG MUSIC
-// ------------------------------
-function setupSoundToggle() {
-    if (!el.soundToggleBtn || !el.soundToggleLabel) return;
-    el.soundToggleBtn.addEventListener("click", function () {
-        isMasterMuted = !isMasterMuted;
-        if (isMasterMuted) {
-            el.soundToggleLabel.textContent = "Sound off";
-            el.soundToggleBtn.classList.add("sound-off");
-            if (el.bgMusic) el.bgMusic.muted = true;
-            if (currentAudio) currentAudio.muted = true;
-        } else {
-            el.soundToggleLabel.textContent = "Sound on";
-            el.soundToggleBtn.classList.remove("sound-off");
-            if (el.bgMusic) el.bgMusic.muted = false;
-            if (currentAudio) currentAudio.muted = false;
-        }
-    });
-}
-
-function setupBgMusic() {
-    if (!el.bgMusic || !el.bgMusicBtn) return;
-    el.bgMusic.volume = BG_TARGET_VOLUME;
-
-    el.bgMusicBtn.addEventListener("click", function () {
+    // Toggle button
+    el.bgMusicBtn?.addEventListener("click", () => {
         if (el.bgMusic.paused) {
-            if (!isMasterMuted) {
-                el.bgMusic.play().catch(function () { });
-            }
+            el.bgMusic.play();
             el.bgMusicBtn.classList.add("bg-music-on");
         } else {
             el.bgMusic.pause();
@@ -1195,89 +772,23 @@ function setupBgMusic() {
     });
 }
 
-// ------------------------------
-// FINAL SECTION BUTTONS
-// ------------------------------
-function setupFinalButtons() {
-    if (el.finalBtn) {
-        let holdTimeout = null;
-
-        function startHold() {
-            el.finalBtn.classList.add("holding");
-            holdTimeout = setTimeout(function () {
-                completedSteps.final = true;
-                updateLoveMeter();
-                showSection("final");
-                unlockNav();
-                showProgressToast("Level 5 unlocked: you finished everything, my overachiever 💗");
-            }, 1200);
-        }
-
-        function endHold() {
-            el.finalBtn.classList.remove("holding");
-            if (holdTimeout) clearTimeout(holdTimeout);
-        }
-
-        el.finalBtn.addEventListener("mousedown", startHold);
-        el.finalBtn.addEventListener("mouseup", endHold);
-        el.finalBtn.addEventListener("mouseleave", endHold);
-        el.finalBtn.addEventListener("touchstart", startHold, { passive: true });
-        el.finalBtn.addEventListener("touchend", endHold);
-    }
-
-    if (el.replayBtn) {
-        el.replayBtn.addEventListener("click", function () {
-            completedSteps = {
-                game: false,
-                letter: false,
-                photos: false,
-                playlist: false,
-                final: false
-            };
-            updateLoveMeter();
-            setupGame();
-            showSection("game");
-
-            if (el.introOverlay) {
-                el.introOverlay.classList.remove("hidden");
-            }
-            startIntroCountdown();
-        });
-    }
-
-    if (el.backToTopBtn) {
-        el.backToTopBtn.addEventListener("click", function () {
-            showSection("game");
-        });
-    }
-}
 
 // ------------------------------
-// INIT
+// ONLOAD INITIALIZATION
 // ------------------------------
-document.addEventListener("DOMContentLoaded", function () {
-    createFloatingHearts();
-    createParallaxHearts();
-    startIntroCountdown();
 
-    setupGame();
-    initPhotoSlider();
-    renderPlaylist();
-    setupSectionNav();
-    setupLetterButton();
-    setupPhotosNextButton();
-    setupSoundToggle();
-    setupBgMusic();
-    setupFinalButtons();
-    updateRelationshipCounter();
-    updateLoveMeter();
-    updateCurrentSectionLabel("game");
-    showSection("game");
-
-    setInterval(rotateCompliments, 8000);
-
-    window.addEventListener("scroll", function () {
-        updateParallaxHearts();
-        updateScrollGradient();
-    });
+document.addEventListener("DOMContentLoaded", () => {
+    querySelectors();
+    loadRelationshipDays();
+    initBackgroundMusic();
+    initBalloons();
+    setupPhotos();
+    setupPlaylist();
+    updateFinalPage();
 });
+
+
+// =============================================================
+// END OF FILE
+// =============================================================
+
