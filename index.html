@@ -28,7 +28,7 @@
     <!-- Confetti canvas -->
     <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none hidden"></canvas>
 
-    <!-- Sweet floating layer (not used heavily, safe placeholder) -->
+    <!-- Sweet floating layer (extra) -->
     <div id="sweet-bubble-layer" class="fixed inset-0 z-30 pointer-events-none"></div>
 
     <!-- INTRO OVERLAY -->
@@ -81,12 +81,15 @@
                     </p>
                 </div>
 
-                <!-- Current section indicator (replaces mood ring) -->
-                <div class="flex flex-col items-end gap-2">
+                <!-- Current section indicator: label + name separate (to match JS) -->
+                <div class="flex flex-col items-end gap-1">
                     <p id="current-section-label"
                        class="current-section-label text-[11px] md:text-xs text-pink-700 bg-white/70 border border-pink-200 rounded-full px-3 py-1 shadow-sm">
-                        You’re currently in:
-                        <span id="current-section-name" class="font-semibold text-pink-600">Game</span>
+                        You’re exploring:
+                    </p>
+                    <p id="current-section-name"
+                       class="text-sm md:text-base font-semibold text-pink-600">
+                        Game 💗
                     </p>
                 </div>
             </div>
@@ -157,7 +160,7 @@
                             <div class="relative flex items-center justify-center gap-6 md:gap-10">
                                 <!-- Draggable heart -->
                                 <div id="heart-draggable"
-                                    class="heart-draggable w-14 h-14 md:w-16 md:h-16 rounded-full bg-pink-500 flex items-center justify-center text-2xl text-white shadow-lg">
+                                    class="heart-draggable w-14 h-14 md:w-16 md:h-16 rounded-full bg-pink-500 flex items-center justify-center text-2xl text-white shadow-lg select-none">
                                     ❤️
                                 </div>
 
@@ -274,7 +277,7 @@
                             </div>
                         </div>
 
-                        <!-- Soft hidden-next button (goes to playlist) -->
+                        <!-- Soft next button (goes to playlist) -->
                         <div class="mt-6 flex justify-center">
                             <button id="photos-next-btn"
                                 class="soft-next-btn px-6 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-full text-sm shadow">
@@ -302,21 +305,10 @@
                         </div>
 
                         <!-- Now playing bar -->
-                        <div id="now-playing-bar"
-                            class="mt-5 w-full hidden bg-pink-50 border border-pink-200 rounded-full px-4 py-2 text-xs md:text-sm flex items-center justify-between gap-2">
-                            <div class="flex items-center gap-2">
-                                <span class="inline-block w-2 h-2 rounded-full bg-pink-500 animate-ping"></span>
-                                <span id="now-playing-text" class="text-pink-700 truncate">
-                                    Now playing: —
-                                </span>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <div id="soundwave" class="soundwave hidden">
-                                    <span></span><span></span><span></span><span></span>
-                                </div>
-                                <span class="text-[10px] uppercase tracking-wide text-pink-400">
-                                    tap pause to hear my chaos again
-                                </span>
+                        <div id="now-playing-bar" class="hidden mt-3">
+                            <div id="now-playing-text"></div>
+                            <div id="soundwave" class="soundwave hidden">
+                                <span></span><span></span><span></span><span></span>
                             </div>
                         </div>
 
@@ -403,7 +395,7 @@
                 </div>
             </div>
             <p id="love-meter-label"
-                class="text-[10px] text-pink-500 uppercase tracking-wide">
+               class="text-[10px] text-pink-500 uppercase tracking-wide">
                 Love level: 0 / 5
             </p>
         </div>

@@ -338,7 +338,7 @@ function startIntroCountdown() {
     }, 1000);
 
     // Tap to hide + start bg music
-    var handler = function (e) {
+    function handler(e) {
         e.preventDefault();
         if (el.startBtn.disabled) return;
 
@@ -346,8 +346,10 @@ function startIntroCountdown() {
             el.introOverlay.classList.add("hidden");
         }
 
+        // try to start background music after user interaction
         startBackgroundMusicAuto();
-    };
+    }
+
     el.startBtn.onclick = handler;
     el.startBtn.addEventListener("touchend", handler, { passive: false });
 }
@@ -779,17 +781,21 @@ function unlockNav() {
     }
 }
 
-// new: update the "You’re currently in: ___" label
+// update the "You’re exploring: ___" label
 function updateCurrentSectionLabel(sectionName) {
     if (!el.currentSectionName) return;
 
-    let label = "Game";
-    if (sectionName === "letter") label = "Letter";
-    else if (sectionName === "photos") label = "Memories";
-    else if (sectionName === "playlist") label = "Playlist";
-    else if (sectionName === "final") label = "Final page";
+    let label = "Game 💗";
+    if (sectionName === "letter") label = "Letter 💌";
+    else if (sectionName === "photos") label = "Memories 📸";
+    else if (sectionName === "playlist") label = "Playlist 🎧";
+    else if (sectionName === "final") label = "Final page 💍";
 
     el.currentSectionName.textContent = label;
+
+    if (el.currentSectionLabel) {
+        el.currentSectionLabel.textContent = "You’re exploring:";
+    }
 }
 
 // LETTER → PHOTOS
@@ -918,15 +924,32 @@ function renderPlaylist() {
         const textWrap = document.createElement("div");
         const titleEl = document.createElement("div");
         titleEl.className = "song-title";
-        titleEl.textContent = track.title;
 
         const artistEl = document.createElement("div");
         artistEl.className = "song-artist";
-        artistEl.textContent = track.artist;
 
         const reasonEl = document.createElement("div");
         reasonEl.className = "song-reason";
-        reasonEl.textContent = track.reason;
+
+        // hidden / revealed logic
+        let revealed = !!track._revealed;
+
+        function applyText() {
+            if (revealed) {
+                titleEl.textContent = track.title;
+                artistEl.textContent = track.artist;
+                reasonEl.textContent = track.reason;
+            } else {
+                titleEl.textContent = "Secret Track 😏💗";
+                artistEl.textContent = "I’ll only tell you if you press Play…";
+                reasonEl.textContent = "This one is locked until you behave 😌🔒";
+            }
+        }
+
+        applyText();
+        if (revealed) {
+            card.classList.add("song-revealed");
+        }
 
         textWrap.appendChild(titleEl);
         textWrap.appendChild(artistEl);
@@ -952,11 +975,12 @@ function renderPlaylist() {
         card.appendChild(right);
         el.playlistContainer.appendChild(card);
 
-        let revealed = false;
         function revealCard() {
             if (!revealed) {
-                card.classList.add("song-revealed");
                 revealed = true;
+                track._revealed = true;
+                applyText();
+                card.classList.add("song-revealed");
             }
         }
 
@@ -1213,6 +1237,10 @@ function setupFinalButtons() {
             updateLoveMeter();
             setupGame();
             showSection("game");
+
+            if (el.introOverlay) {
+                el.introOverlay.classList.remove("hidden");
+            }
             startIntroCountdown();
         });
     }
