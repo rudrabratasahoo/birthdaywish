@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -15,7 +14,7 @@
     <!-- Tailwind CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 
-    <!-- Your custom styles -->
+    <!-- Custom styles -->
     <link rel="stylesheet" href="style.css" />
 </head>
 
@@ -29,7 +28,7 @@
     <!-- Confetti canvas -->
     <canvas id="confetti-canvas" class="fixed inset-0 pointer-events-none hidden"></canvas>
 
-    <!-- Sweet floating bubbles (compliments + whispers) -->
+    <!-- Sweet floating layer (not used heavily, safe placeholder) -->
     <div id="sweet-bubble-layer" class="fixed inset-0 z-30 pointer-events-none"></div>
 
     <!-- INTRO OVERLAY -->
@@ -62,7 +61,6 @@
     <div class="min-h-screen relative">
 
         <!-- TOP HERO -->
-                <!-- TOP HERO -->
         <header class="pt-6 pb-2 px-4 md:px-8">
             <div class="max-w-4xl mx-auto flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
@@ -76,23 +74,23 @@
                         Soft website, dramatic feelings, mild chaos. Built only for you.
                     </p>
 
-                    <!-- Relationship day counter chip -->
+                    <!-- Relationship day counter chip (hero) -->
                     <p id="relationship-counter-hero"
-                       class="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/70 border border-pink-200 text-[11px] text-pink-700 shadow-sm">
-                        <!-- filled by JS -->
+                        class="mt-2 inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/70 border border-pink-200 text-[11px] text-pink-700 shadow-sm">
+                        <!-- Filled by JS -->
                     </p>
                 </div>
 
-                <!-- Mood ring -->
+                <!-- Current section indicator (replaces mood ring) -->
                 <div class="flex flex-col items-end gap-2">
-                    <div id="mood-ring" class="mood-ring">
-                        <div class="mood-ring-inner"></div>
-                        <p id="mood-ring-label" class="mood-ring-label">Mood: game</p>
-                    </div>
+                    <p id="current-section-label"
+                       class="current-section-label text-[11px] md:text-xs text-pink-700 bg-white/70 border border-pink-200 rounded-full px-3 py-1 shadow-sm">
+                        You’re currently in:
+                        <span id="current-section-name" class="font-semibold text-pink-600">Game</span>
+                    </p>
                 </div>
             </div>
         </header>
-
 
         <!-- NAVIGATION PILLS (unlock AFTER final only) -->
         <nav id="section-nav" class="max-w-3xl mx-auto mt-3 px-4 md:px-0 hidden">
@@ -109,9 +107,9 @@
         <!-- MAIN CONTENT -->
         <main class="mt-4 mb-20 px-3 md:px-6 lg:px-0">
 
-            <!-- SECTION: GAME (Find My Heart + Drag) -->
+            <!-- SECTION: GAME -->
             <section id="game-section"
-                class="min-h-[70vh] flex flex-col items-center justify-center section-transition">
+                class="min-h-[70vh] flex flex-col items-center justify-center section-transition section-visible">
                 <div class="max-w-3xl w-full mx-auto p-4">
                     <div class="romantic-panel p-6 md:p-8 beat-glow-target">
                         <h2 class="font-dancing text-3xl md:text-4xl romantic-heading mb-3">
@@ -276,7 +274,7 @@
                             </div>
                         </div>
 
-                        <!-- Soft hidden-next button -->
+                        <!-- Soft hidden-next button (goes to playlist) -->
                         <div class="mt-6 flex justify-center">
                             <button id="photos-next-btn"
                                 class="soft-next-btn px-6 py-2 bg-pink-500 hover:bg-pink-600 text-white rounded-full text-sm shadow">
