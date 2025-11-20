@@ -11,7 +11,7 @@ You didn’t enter my life with some big dramatic moment. It was small, random, 
 
 You’re not just someone I talk to. You’re someone I feel. Like… genuinely feel. In my chest. In my day. In my stupid smile that shows up whenever you cross my mind.
 
-And God, you drive me insane sometimes — the tiny annoyed face, the mood switches, the way you bully me like it’s a full-time job, and then act cute literally two minutes later. And the worst part? I melt anyway. Every damn time.
+And God, you drive me insane sometimes — the tiny annoyed face, the mood switches, the way you bully me like it’s a full-time job, and then act cute literally two minutes later. And the worst part? I melt anyway. Every time.
 
 You have no idea how easy you make it for me to fall for you again and again.
 
@@ -40,27 +40,35 @@ Happy Birthday, my sweetest girl. I hope today feels a little like what you make
 const playlist = [
     {
         title: "I Love You",
-        artist: "Your Secret Singer 😉",
+        artist: "You Know Who 😉",
         reason: "Because it’s your favourite, and somehow it sounds exactly like the way my heart talks about you — soft, certain, and hopelessly in love. 💗",
         audioUrl: "audio/song1.mp3",
         externalUrl: "#",
         highlightStart: 30
     },
     {
-        title: "Bin Tere",
-        artist: "I Hate Luv Storys",
-        reason: "Because this is the one that feels like those quiet moments where I realise how different my world is with you… and how incomplete it feels without you in it. 💗",
+        title: "Paglu",
+        artist: "can only wish it was me😜 ",
+        reason: "coz..I am paglu for you 💗",
         audioUrl: "audio/song2.mp3",
         externalUrl: "#",
-        highlightStart: 20
+        highlightStart: 15
     },
     {
-        title: "Song 3",
-        artist: "Artist 3",
+        title: "Bin Tere",
+        artist: "Obviously not me 🤭",
         reason: "Because if my heart had a playlist, this would quietly play in the background every time I think of you. 💘",
         audioUrl: "audio/song3.mp3",
         externalUrl: "#",
-        highlightStart: 80
+        highlightStart: 140
+    },
+    {
+    title: "Tu chahiye",
+    artist: "My heart 💗",
+    reason: "Because what else can I want? 💓",
+    audioUrl: "audio/newsong.mp3",
+    externalUrl: "#",
+    highlightStart: 51
     }
 ];
 
