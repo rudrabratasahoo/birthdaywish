@@ -444,15 +444,21 @@ function startIntroCountdown() {
 
     // attach click / touch handlers only once
     if (!introListenersAttached) {
-        const handler = (e) => {
-            e.preventDefault();
-            if (el.startBtn.disabled) return;
-            if (!el.introOverlay.classList.contains("hidden")) {
-                el.introOverlay.classList.add("hidden");
-            }
-        };
-        el.startBtn.addEventListener("click", handler);
-        el.startBtn.addEventListener("touchend", handler, { passive: false });
+        // Tap to hide + start bg music
+var handler = function (e) {
+    e.preventDefault();
+    if (el.startBtn.disabled) return;
+
+    if (!el.introOverlay.classList.contains("hidden")) {
+        el.introOverlay.classList.add("hidden");
+    }
+
+    // try to start background music after user interaction
+    startBackgroundMusicAuto();
+};
+el.startBtn.onclick = handler;
+el.startBtn.addEventListener("touchend", handler, { passive: false });
+
         introListenersAttached = true;
     }
 }
@@ -1291,6 +1297,24 @@ function setupSoundToggle() {
         }
     });
 }
+
+function startBackgroundMusicAuto() {
+    if (!el.bgMusic) return;
+    if (isMasterMuted) return; // respect global mute
+
+    el.bgMusic.volume = BG_TARGET_VOLUME;
+
+    el.bgMusic.play().then(function () {
+        // Mark button as ON if it exists
+        if (el.bgMusicBtn) {
+            el.bgMusicBtn.classList.add("bg-music-on");
+        }
+    }).catch(function (err) {
+        // Autoplay might still get blocked on some devices
+        console.log("Background music autoplay was blocked:", err);
+    });
+}
+
 
 function setupBgMusic() {
     if (!el.bgMusic || !el.bgMusicBtn) return;
