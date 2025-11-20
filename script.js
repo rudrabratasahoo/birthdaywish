@@ -66,7 +66,7 @@ const playlist = [
     title: "Tu chahiye",
     artist: "My heart 💗",
     reason: "Because what else can I want? 💓",
-    audioUrl: "audio/newsong.mp3",
+    audioUrl: "audio/song4.mp3",
     externalUrl: "#",
     highlightStart: 51
     }
