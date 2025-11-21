@@ -3,60 +3,45 @@
 // ------------------------------
 
 const messageText = `
-Happy Birthday, my baby Gelhi🫶 💖
+Happy Birthday 🎉
 
-I don’t even know how to start this properly, because whenever it comes to you my brain just softens. So I’m just going to say it the way it feels.
+I would like to take a moment to express something sincerely. Certain individuals enter our lives quietly, without any dramatic introduction, yet they bring a meaningful and lasting impact. You are one of those individuals.
 
-You didn’t enter my life with some big dramatic moment. It was small, random, almost nothing. And somehow you became the person I think about the most. I still don’t know how that happened, but I’m really glad it did.
+Your presence brings a sense of calm, warmth, and steadiness that is easy to appreciate but difficult to put into words. You contribute positivity in ways that are subtle yet deeply valued.
 
-You’re not just someone I talk to. You’re someone I feel. Like… genuinely feel. In my chest. In my day. In my stupid smile that shows up whenever you cross my mind.
+Your thoughts, your perspective, your humour, and even your quieter moments create an atmosphere that feels genuine and reassuring. These qualities make you stand out in a remarkable way.
 
-And God, you drive me insane sometimes — the tiny annoyed face, the mood switches, the way you bully me like it’s a full-time job, and then act cute literally two minutes later. And the worst part? I melt anyway. Every time.
+If this were a story, you would be the character who adds depth and clarity.  
+If it were a poem, you would be the line that gives the rest its meaning.
 
-You have no idea how easy you make it for me to fall for you again and again.
+You are human, real, and beautifully imperfect — and that authenticity is what makes you truly exceptional.
 
-There’s a version of me that exists only with you. Softer. Calmer. A little less lost. You bring that out without trying.
+On your birthday, I hope the day offers you the same sense of comfort, happiness, and quiet encouragement that you bring to others. May the year ahead be filled with growth, clarity, and moments that reinforce how valued you are.
 
-And honestly… sometimes I read your texts or imagine your voice and something in me just goes, “Yeah… that’s her.” It’s stupid but it’s real.
-
-If life was a Bollywood movie, you’d be the girl they show in slow motion while the hero forgets how to breathe. That’s exactly the effect you have on me. Annoying. Cute. Dangerous.
-
-And if this was a poem, you’d be the line everything else depends on — the part that finally makes sense of the chaos.
-
-But you’re not a poem or a scene. You’re real. Human. Imperfect in the most beautiful ways. And that’s exactly why I love you this much.
-
-Your moods, your rants, your silence, your jokes, your overthinking, your softness, your anger — the way you say tiny things that stay in my head for days… all of it. I want all of it.
-
-So on your birthday, let me say this properly:
-
-I love you, Gelhi. Not the light casual kind. The heavy, warm, real kind. The kind that scares me a little because it feels so genuine.
-
-You’ve become my baby, my headache, my comfort person, my softness, my chaos, my peace, and honestly… the prettiest part of any future I imagine.
-
-Happy Birthday, my sweetest girl. I hope today feels a little like what you make me feel every single day — safe, warm, wanted, and a little bit magical.
+Wishing you a wonderful birthday and a year full of opportunities and kindness. 🎂✨
 `;
 
 // Playlist
 const playlist = [
     {
-        title: "I Love You",
-        artist: "You Know Who 😉",
+        title: "XXX",
+        artist: "CCC",
         reason: "Because it’s your favourite, and somehow it sounds exactly like the way my heart talks about you — soft, certain, and hopelessly in love. 💗",
         audioUrl: "audio/song1.mp3",
         externalUrl: "#",
         highlightStart: 30
     },
     {
-        title: "Paglu",
-        artist: "can only wish it was me😜 ",
+        title: "YYY",
+        artist: "BBB",
         reason: "coz..I am paglu for you 💗",
         audioUrl: "audio/song2.mp3",
         externalUrl: "#",
         highlightStart: 15
     },
     {
-        title: "Bin Tere",
-        artist: "Obviously not me 🤭",
+        title: "ZZZ",
+        artist: "AAA",
         reason: "Because if my heart had a playlist, this would quietly play in the background every time I think of you. 💘",
         audioUrl: "audio/song3.mp3",
         externalUrl: "#",
@@ -90,7 +75,7 @@ const compliments = [
 ];
 
 // Game config
-const BALLOON_COUNT = 11;
+const BALLOON_COUNT = 21;
 
 const wrongClickMessages = [
     "Not this one, sweetheart 💗",
